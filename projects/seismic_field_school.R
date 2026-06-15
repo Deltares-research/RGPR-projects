@@ -1,5 +1,7 @@
 
-library(RGPR)
+suppressPackageStartupMessages(
+	library(RGPR, warn.conflicts = FALSE, quietly = TRUE)
+)
 
 DIR <- r"(C:\Projects\Universiteit Utrecht - Seismic Field School\data\20240603 - sfs uithof\250 mHz)"
 x <- readGPR(dsn = file.path(DIR, "Line1-ch2.DT1"))

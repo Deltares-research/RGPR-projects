@@ -37,7 +37,7 @@ Wait for the success message.
 Test that everything loaded correctly:
 
 ```r
-library(RGPR)
+library(RGPR, warn.conflicts = FALSE, quietly = TRUE)
 frenkeLine00
 plot(frenkeLine00)
 ```

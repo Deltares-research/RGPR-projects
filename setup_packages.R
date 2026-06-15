@@ -30,7 +30,9 @@ if (length(cran_missing) > 0) {
 }
 
 # Load remotes
-library(remotes, lib.loc = lib_path)
+suppressPackageStartupMessages(
+  library(remotes, lib.loc = lib_path, warn.conflicts = FALSE, quietly = TRUE)
+)
 
 # Install RGPR from GitHub
 remotes::install_github(
@@ -40,11 +42,11 @@ remotes::install_github(
   upgrade = "never"
 )
 
-# Verify installation
-if (require(jsonlite, lib.loc = lib_path) && 
-    require(rlang, lib.loc = lib_path) && 
-    require(languageserver, lib.loc = lib_path) && 
-    require(RGPR, lib.loc = lib_path)) {
+# Verify installation without attaching packages to avoid masking warnings
+if (requireNamespace("jsonlite", lib.loc = lib_path, quietly = TRUE) &&
+    requireNamespace("rlang", lib.loc = lib_path, quietly = TRUE) &&
+    requireNamespace("languageserver", lib.loc = lib_path, quietly = TRUE) &&
+    requireNamespace("RGPR", lib.loc = lib_path, quietly = TRUE)) {
   cat("\n✓ SUCCESS: All packages installed and loaded!\n")
   cat("Packages location:", lib_path, "\n")
 } else {

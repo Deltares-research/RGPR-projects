@@ -1,0 +1,29 @@
+
+if(!require("ggplot2")) install.packages("ggplot2")
+library(RGPR)
+library(plotly)
+library(ggplot2)
+
+zop <- r"(D:\Projects\Drieklinken\data\profiles\250 MHz\Line1-ch2.dt1)"
+
+x <- readGPR(dsn = zop)
+
+
+tfb <- firstBreak(x, w = 10, method = "coppens", thr = 0.05)
+plot(x[,1], relTime0 = FALSE, xlim = c(0, 100))
+t0 <- firstBreakToTime0(tfb[1], x[,1])
+abline(v = c(tfb[1], t0[1]), col = c("green", "blue"))
+
+time0(x) <- t0
+
+x1 <- dcshift(x)
+x2 <- dewow(x1, type = "runmed", w = 50)
+x3 <- gain(x2, type = 'exp', alpha =0.11)
+x4 <- fFilter(x3, f = c(300, 800), type = "low", plotSpec = TRUE)
+
+plot(x3)
+plot(x4)
+
+#plot(x3, clip = 50000)
+
+

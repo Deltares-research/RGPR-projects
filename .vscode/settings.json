@@ -1,0 +1,12 @@
+{
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "r.lsp.path": "C:\\Program Files\\R\\R-4.6.0\\bin\\Rscript.exe",
+  "r.lsp.args": [],
+  "r.rpath.windows": "C:\\Program Files\\R\\R-4.6.0\\bin\\R.exe",
+  "r.lsp.debug": false,
+  "r.lsp.diagnostics": true,
+  "[r]": {
+    "editor.formatOnSave": false
+  },
+  "r.lsp.promptToInstall": false
+}

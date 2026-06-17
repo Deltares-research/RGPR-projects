@@ -1,0 +1,28 @@
+# Environment / Configuration files (local user settings)
+.env
+projects/Juka/.env
+
+# R-specific
+.Rhistory
+.Rapp.history
+.RData
+.Rbuildignore
+*.Rproj
+.Rproj.user/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output folders (optional – uncomment if you want to keep generated files out of git)
+# projects/Juka/plots/
+# projects/Juka/PRC/
+# C:/Projects/R_JuKa/plots/
+# C:/Projects/R_JuKa/PRC/

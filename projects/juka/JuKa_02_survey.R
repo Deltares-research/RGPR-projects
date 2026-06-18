@@ -5,7 +5,7 @@
 # files (auto-read by RGPR), sets the CRS to RD New Amersfoort (EPSG:28992),
 # applies topographic correction, and saves survey plots.
 #
-# Prerequisites: run JuKa_01_processing.R first.
+# Prerequisites: run 01_recipe_processing.R first.
 #
 # What this script does:
 #   1.  Reads processed DT1 files from PRC/ into a GPRsurvey object.
@@ -61,7 +61,7 @@ prc_files <- sort(
 
 if (length(prc_files) == 0) {
   stop("No processed DT1 files found in PRC_DIR: ", PRC_DIR,
-       "\nPlease run JuKa_01_processing.R first.")
+  "\nPlease run 01_recipe_processing.R first.")
 }
 cat("Loading", length(prc_files), "processed line(s)...\n")
 

@@ -25,6 +25,77 @@ Open `.env` and update at least:
 
 All other settings have sensible defaults but can be tuned for your survey.
 
+### 2b. Define Your Processing Recipe
+
+Script 01 is recipe-driven. The processing flow is stored in
+[recipe_steps.txt](recipe_steps.txt), with one complete call per line in a
+syntax that stays close to RGPR tutorials.
+
+Example recipe:
+
+```r
+setTime0(t0 = "header")
+plot(main = "Raw")
+plot(traces = 1, main = "Trace 1: t0 from header")
+firstBreak(w = 5, method = "coppens", thr = 0.08)
+firstBreakToTime0()
+setTime0(t0 = "fb")
+plot(traces = 1, main = "Trace 1: t0 from firstBreak")
+abline(v = "tfb", trace = 1, col = "blue", lwd = 2)
+time0Cor()
+dewow(type = "runmed", w = 50)
+gain(type = "power", alpha = 1.5, te = 200, tcst = 50)
+fFilter(f = c(75, 325), type = "bandpass", plotSpec = FALSE)
+migrate(type = "kirchhoff", vel = 0.1)
+deconv(method = "spiking", W = c(2, 30), wtr = 5, nf = 20, mu = 1e-05)
+crop(ylim = c(0, 100))
+writeGPR(type = "DT1")
+```
+
+Rules:
+
+1. Any callable RGPR exported function name is accepted.
+2. Invalid order fails immediately.
+3. Comments with `#` are allowed.
+4. One complete call per line is required.
+5. Flow within each file is always sequential.
+6. Different files can run in parallel, controlled from `.env`.
+7. `writeGPR()` is optional, so a recipe may also be plot-only.
+8. `abline(...)` applies to the most recent `plot(...)` call and should appear right after that plot in the recipe.
+9. `abline(v = "tfb", trace = k, ...)` draws the first-break time for trace `k` (defaults to trace 1).
+10. For RGPR calls, the current GPR object is passed implicitly as the first argument (`x`).
+11. If a call returns a non-GPR value, processing continues with the current GPR object unchanged.
+
+Indexing convention in recipes (instead of using `x[...]`):
+
+1. Do not write `x[, 15]`; write `traces = 15`.
+2. Do not write `x[16, ]`; write `slices = 16`.
+3. Lists/vectors are supported: `traces = c(1, 5, 9)`, `slices = c(10, 20)`.
+4. This applies to `plot(...)` and to processing calls where subsetting is useful.
+
+Important `.env` keys for the recipe engine:
+
+1. `RECIPE_FILE`
+2. `RECIPE_NAME`
+3. `RECIPE_VERSION`
+4. `RECIPE_DRY_RUN`
+5. `PRINT_RECIPE_PLAN`
+6. `FILE_PARALLEL_ENABLED`
+7. `FILE_PARALLEL_WORKERS`
+8. `STEP_ON_ERROR_DEFAULT`
+9. `TEST_MODE`
+10. `TEST_MAX_FILES`
+
+Design choice:
+
+1. Global runtime settings stay in `.env`.
+2. Step-local processing parameters belong in `recipe_steps.txt`.
+
+Manifest output:
+
+1. Per-file manifest is saved in [plots/manifests](plots/manifests).
+2. Includes recipe name/version, executed calls, and effective parameters.
+
 ### 3. Run in R
 
 Navigate to this folder, then run the three scripts in order:
@@ -33,7 +104,7 @@ Navigate to this folder, then run the three scripts in order:
 setwd("/path/to/Juka")
 
 # Stage 1: Batch processing (time-zero, dewow, filter, gain, deconv, migration)
-source("JuKa_01_processing.R")
+source("01_recipe_processing.R")
 
 # Stage 2: Survey assembly, coordinate attachment, topographic correction
 source("JuKa_02_survey.R")
@@ -51,7 +122,7 @@ R  # or Rscript, or open in RStudio
 
 Then in R:
 ```r
-source("JuKa_01_processing.R")
+source("01_recipe_processing.R")
 source("JuKa_02_survey.R")
 source("JuKa_03_timeslices.R")
 ```
@@ -60,7 +131,7 @@ source("JuKa_03_timeslices.R")
 
 | File | Purpose |
 |------|---------|
-| `JuKa_01_processing.R` | Batch processing: loads raw `.DT1` files, applies processing chain (dewow, filtering, gain, etc.), saves to `PRC/` |
+| `01_recipe_processing.R` | Stage 01 entrypoint in this project; delegates to shared recipe engine in `../../RGPR_processing.R` |
 | `JuKa_02_survey.R` | Survey assembly: reads from `PRC/`, attaches GPS coordinates from `.gp2` files, applies topographic correction |
 | `JuKa_03_timeslices.R` | Envelope & slicing: computes signal envelope, interpolates 3-D data cube, exports slices as PNG and GeoTIFF |
 | `.env.example` | Template configuration file – copy to `.env` and customize |

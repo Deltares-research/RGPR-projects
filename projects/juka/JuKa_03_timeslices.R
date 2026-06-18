@@ -6,7 +6,7 @@
 # depth slices using Multilevel B-Spline Approximation.  Slices and a 3-D
 # data cube are saved as PNG plots and GeoTIFF rasters.
 #
-# Prerequisites: run JuKa_01_processing.R and JuKa_02_survey.R first.
+# Prerequisites: run 01_recipe_processing.R and JuKa_02_survey.R first.
 #
 # What this script does:
 #   1.  Loads topo-corrected DT1 files from PRC/ into a GPRsurvey.
@@ -83,7 +83,7 @@ if (length(topo_files) == 0) {
 
 if (length(topo_files) == 0) {
   stop("No DT1 files found in PRC_DIR: ", PRC_DIR,
-       "\nPlease run JuKa_01_processing.R (and optionally JuKa_02_survey.R) first.")
+  "\nPlease run 01_recipe_processing.R (and optionally JuKa_02_survey.R) first.")
 }
 
 cat("Loading", length(topo_files), "file(s) into GPRsurvey...\n")

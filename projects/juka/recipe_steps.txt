@@ -1,0 +1,19 @@
+# One complete call per line.
+# Comments are allowed with #.
+
+setTime0(t0 = "header")
+plot(main = "Raw")
+plot(traces = 1, main = "Trace 1: t0 from header")
+firstBreak(w = 5, method = "coppens", thr = 0.08)
+firstBreakToTime0()
+setTime0(t0 = "fb")
+plot(traces = 1, main = "Trace 1: t0 from firstBreak")
+abline(v = "tfb", trace = 1, col = "blue", lwd = 2)
+time0Cor()
+dewow(type = "runmed", w = 50)
+gain(type = "power", alpha = 1.5, te = 200, tcst = 50)
+fFilter(f = c(75, 325), type = "bandpass", plotSpec = FALSE)
+migrate(type = "kirchhoff", vel = 0.1)
+deconv(method = "spiking", W = c(2, 30), wtr = 5, nf = 20, mu = 1e-05)
+crop(ylim = c(0, 100))
+writeGPR(type = "DT1")

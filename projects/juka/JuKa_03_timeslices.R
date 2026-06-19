@@ -6,7 +6,7 @@
 # depth slices using Multilevel B-Spline Approximation.  Slices and a 3-D
 # data cube are saved as PNG plots and GeoTIFF rasters.
 #
-# Prerequisites: run 01_recipe_processing.R and JuKa_02_survey.R first.
+# Prerequisites: run run.R and JuKa_02_survey.R first.
 #
 # What this script does:
 #   1.  Loads topo-corrected DT1 files from PRC/ into a GPRsurvey.
@@ -23,10 +23,22 @@
 library(RGPR)
 
 # =============================================================================
-# LOAD CONFIGURATION FROM .env
+# CONFIGURATION
 # =============================================================================
 
-source("_config.R")  # Loads DATA_DIR, PLOTS_DIR, PRC_DIR, SLICE_DIR, RASTER_DIR, etc.
+source("config.R")                         # defines: cfg <- list(...)
+DATA_DIR   <- cfg$data_dir
+PLOTS_DIR  <- cfg$plots_dir
+PRC_DIR    <- cfg$prc_dir
+SLICE_DIR  <- cfg$slice_dir
+RASTER_DIR <- cfg$raster_dir
+CRS_SURVEY <- cfg$crs_survey
+V_RADAR    <- cfg$v_radar
+DX         <- cfg$dx
+DY         <- cfg$dy
+DZ         <- cfg$dz
+MBA_H      <- cfg$mba_h
+PNG_W      <- 1200; PNG_H <- 1000; PNG_RES <- 120  # slice plot dimensions
 
 # Auto-install raster if missing
 if (!requireNamespace("raster", quietly = TRUE)) {
@@ -48,9 +60,6 @@ INTERP_BUFFER <- 0   # set > 0 to extend beyond the GPR lines
 # Set to NULL to use the full available range of the data.
 T_MIN_NS <- NULL   # e.g. 0   (NULL = auto)
 T_MAX_NS <- NULL   # e.g. 80  (NULL = auto)
-
-# PNG output
-PNG_W <- 1200; PNG_H <- 1000; PNG_RES <- 120
 
 # =============================================================================
 # SETUP
@@ -83,7 +92,7 @@ if (length(topo_files) == 0) {
 
 if (length(topo_files) == 0) {
   stop("No DT1 files found in PRC_DIR: ", PRC_DIR,
-  "\nPlease run 01_recipe_processing.R (and optionally JuKa_02_survey.R) first.")
+  "\nPlease run run.R (and optionally JuKa_02_survey.R) first.")
 }
 
 cat("Loading", length(topo_files), "file(s) into GPRsurvey...\n")
@@ -244,7 +253,7 @@ if (requireNamespace("raster", quietly = TRUE)) {
 tryCatch({
   exportCoord(SU,
               type  = "SpatialLines",
-              fPath = file.path(DIR, "JuKa_survey_lines_envelope.gpkg"))
+              fPath = file.path(DATA_DIR, "JuKa_survey_lines_envelope.gpkg"))
   cat("Exported survey lines to: JuKa_survey_lines_envelope.gpkg\n")
 }, error = function(e) {
   warning("Coordinate export failed: ", conditionMessage(e))

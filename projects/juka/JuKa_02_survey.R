@@ -5,7 +5,7 @@
 # files (auto-read by RGPR), sets the CRS to RD New Amersfoort (EPSG:28992),
 # applies topographic correction, and saves survey plots.
 #
-# Prerequisites: run 01_recipe_processing.R first.
+# Prerequisites: run run.R first.
 #
 # What this script does:
 #   1.  Reads processed DT1 files from PRC/ into a GPRsurvey object.
@@ -25,14 +25,22 @@
 library(RGPR)
 
 # =============================================================================
-# LOAD CONFIGURATION FROM .env
+# CONFIGURATION
 # =============================================================================
 
-source("_config.R")  # Loads DATA_DIR, PLOTS_DIR, PRC_DIR, V_RADAR, CRS_SURVEY, etc.
+source("config.R")                         # defines: cfg <- list(...)
+DATA_DIR   <- cfg$data_dir
+PLOTS_DIR  <- cfg$plots_dir
+PRC_DIR    <- cfg$prc_dir
+V_RADAR    <- cfg$v_radar
+CRS_SURVEY <- cfg$crs_survey
+PNG_W      <- cfg$png_w
+PNG_H      <- cfg$png_h
+PNG_RES    <- cfg$png_res
 
 # Input CRS for reprojection (set to same as OUTPUT_CRS if no reprojection needed)
-INPUT_CRS  <- CRS_SURVEY    # from .env
-OUTPUT_CRS <- CRS_SURVEY    # from .env
+INPUT_CRS  <- CRS_SURVEY
+OUTPUT_CRS <- CRS_SURVEY
 
 # =============================================================================
 # SETUP
@@ -61,7 +69,7 @@ prc_files <- sort(
 
 if (length(prc_files) == 0) {
   stop("No processed DT1 files found in PRC_DIR: ", PRC_DIR,
-  "\nPlease run 01_recipe_processing.R first.")
+  "\nPlease run run.R first.")
 }
 cat("Loading", length(prc_files), "processed line(s)...\n")
 

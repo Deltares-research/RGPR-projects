@@ -1,6 +1,6 @@
 # Environment / Configuration files (local user settings)
 .env
-projects/Juka/.env
+projects/juka/config.R
 
 # R-specific
 .Rhistory

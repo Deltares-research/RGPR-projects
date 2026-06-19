@@ -1,19 +1,37 @@
-# One complete call per line.
-# Comments are allowed with #.
+## Processing flow in RGPR style
 
+# read t0 of the scope test from the header file
 setTime0(t0 = "header")
 plot(main = "Raw")
 plot(traces = 1, main = "Trace 1: t0 from header")
-firstBreak(w = 5, method = "coppens", thr = 0.08)
-firstBreakToTime0()
-setTime0(t0 = "fb")
+
+# calculate t0's from first break picks of each trace
+estimateTime0(method = "coppens", w = 5, ns=4, shorten = TRUE)
+plot(pos(x), time0(x), pch = 20, main = "t0's from fbpick", ylab = "time0 (ns)", xlab = "position (m)")
+
+# take the median value of the t0's
+estimateTime0(method = "coppens", w = 5, ns=4, shorten = TRUE, FUN = median)
+plot(pos(x), time0(x), pch = 20, main = "median t0", ylab = "time0 (ns)", xlab = "position (m)")
 plot(traces = 1, main = "Trace 1: t0 from firstBreak")
-abline(v = "tfb", trace = 1, col = "blue", lwd = 2)
+
+# apply the correction and plot result
 time0Cor()
+plot(main = "Time zero corrected")
+
+# signal processing steps
 dewow(type = "runmed", w = 50)
-gain(type = "power", alpha = 1.5, te = 200, tcst = 50)
-fFilter(f = c(75, 325), type = "bandpass", plotSpec = FALSE)
-migrate(type = "kirchhoff", vel = 0.1)
-deconv(method = "spiking", W = c(2, 30), wtr = 5, nf = 20, mu = 1e-05)
-crop(ylim = c(0, 100))
-writeGPR(type = "DT1")
+plot(main = "dewow")
+
+gain(type = "power", alpha = 4, te = 200, tcst = 50)
+plot(main = "gain")
+
+fFilter(f = c(75, 325), type = "bandpass", plotSpec = TRUE)
+plot(main = "bandpass filter")
+
+#migrate(type = "kirchhoff", vel = 0.1)
+#plot(main = "kirchhoff migration")
+#deconv(method = "spiking", W = c(2, 30), wtr = 5, nf = 20, mu = 1e-05)
+#plot(main = "spiking deconvolution")
+#crop(ylim = c(0, 100))
+#plot(main = "crop record length")
+#writeGPR(type = "DT1") 

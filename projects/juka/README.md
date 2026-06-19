@@ -9,21 +9,15 @@ This folder contains three R scripts for batch processing GPR data in a three-st
 ```bash
 # Navigate to the Juka project folder in your terminal
 cd /path/to/Juka
-
-# Copy the example config to your local .env file
-cp .env.example .env   # or just copy manually
-
-# Edit .env with your paths and settings
-# (use your preferred editor: Notepad++, VS Code, RStudio, etc.)
 ```
 
 ### 2. Edit Configuration
 
-Open `.env` and update at least:
-- `DATA_DIR` – path to your raw GPR data (e.g., `/path/to/your/gpr/data`)
-- `V_RADAR` – radar wave velocity for your site (e.g., 0.1 m/ns)
+Open [config.R](config.R) and update the paths at the top:
+- `data_dir` – path to your raw GPR data
+- `v_radar` – radar wave velocity for your site (e.g., `0.1` m/ns)
 
-All other settings have sensible defaults but can be tuned for your survey.
+All other settings have sensible defaults.
 
 ### 2b. Define Your Processing Recipe
 
@@ -88,7 +82,7 @@ Important `.env` keys for the recipe engine:
 
 Design choice:
 
-1. Global runtime settings stay in `.env`.
+1. All settings (paths, physics, test mode, parallelism) stay in `config.R` as an explicit R list.
 2. Step-local processing parameters belong in `recipe_steps.txt`.
 
 Manifest output:
@@ -104,7 +98,7 @@ Navigate to this folder, then run the three scripts in order:
 setwd("/path/to/Juka")
 
 # Stage 1: Batch processing (time-zero, dewow, filter, gain, deconv, migration)
-source("01_recipe_processing.R")
+source("run.R")
 
 # Stage 2: Survey assembly, coordinate attachment, topographic correction
 source("JuKa_02_survey.R")
@@ -113,42 +107,38 @@ source("JuKa_02_survey.R")
 source("JuKa_03_timeslices.R")
 ```
 
-**Or, if you `cd` into the folder first before launching R, you don't need `setwd()`:**
+**Or run directly with Rscript:**
 
 ```bash
 cd /path/to/Juka
-R  # or Rscript, or open in RStudio
-```
-
-Then in R:
-```r
-source("01_recipe_processing.R")
-source("JuKa_02_survey.R")
-source("JuKa_03_timeslices.R")
+Rscript run.R
+Rscript JuKa_02_survey.R
+Rscript JuKa_03_timeslices.R
 ```
 
 ## Files in This Folder
 
 | File | Purpose |
 |------|---------|
-| `01_recipe_processing.R` | Stage 01 entrypoint in this project; delegates to shared recipe engine in `../../RGPR_processing.R` |
-| `JuKa_02_survey.R` | Survey assembly: reads from `PRC/`, attaches GPS coordinates from `.gp2` files, applies topographic correction |
+| `config.R` | All project settings as an explicit R list – paths, physics, recipe options, output sizes |
+| `recipe_steps.txt` | Processing recipe for Stage 01 – one RGPR call per line |
+| `run.R` | Stage 01 entry: sources the shared engine and calls `run_stage1(cfg)` |
+| `JuKa_02_survey.R` | Survey assembly: reads from `PRC/`, attaches GPS coordinates, applies topographic correction |
 | `JuKa_03_timeslices.R` | Envelope & slicing: computes signal envelope, interpolates 3-D data cube, exports slices as PNG and GeoTIFF |
-| `.env.example` | Template configuration file – copy to `.env` and customize |
-| `_config.R` | Configuration loader – reads `.env` and sets all global variables |
 
-## Configuration (`.env`)
+## Configuration (`config.R`)
 
-All user-facing settings are in `.env`:
+All user-facing settings are in `config.R` as a plain R list:
 
-- **Paths** (`DATA_DIR`, etc.)
-- **Physics** (`V_RADAR`, `DECONV_ENABLED`, `MIGRATE_ENABLED`)
-- **Filters** (`F_LOW_FRAC`, `F_HIGH_FRAC`, `DEWOW_W`)
-- **Gain** (`TPOWER_ALPHA`, `TPOWER_TE`, `TPOWER_TCST`)
-- **Time-slicing** (`DX`, `DY`, `DZ`, `MBA_H`)
-- **Output** (`PNG_W`, `PNG_H`, `PNG_RES`)
+- **Paths** (`data_dir`, `plots_dir`, `prc_dir`, `slice_dir`, `raster_dir`)
+- **Physics** (`v_radar`, `crs_survey`)
+- **Recipe** (`recipe_file`, `recipe_name`, `recipe_version`, `dry_run`, `print_plan`)
+- **File discovery** (`file_pattern`)
+- **Run control** (`test_mode`, `test_max`, `parallel`, `workers`, `on_error`, `save_manifest`)
+- **Output** (`png_w`, `png_h`, `png_res`)
+- **Time-slicing** (`dx`, `dy`, `dz`, `mba_h`)
 
-`.env` is **not** committed to git (see `.gitignore`), so your local paths and settings stay private.
+`config.R` is **not** committed to git (see `.gitignore`), so your local paths and settings stay private.
 
 ## Input Data Structure
 
@@ -197,8 +187,8 @@ your_gpr_data_folder/
 
 ## Troubleshooting
 
-### "Configuration file '.env' not found"
-→ Copy `.env.example` to `.env` and edit it.
+### "Configuration file 'config.R' not found"
+→ Make sure you run from the `Juka/` folder (`setwd("/path/to/Juka")` or `cd` into it first).
 
 ### "No DT1 files found in …"
 → Check `DATA_DIR` in `.env` – make sure the path is correct and the files exist.
